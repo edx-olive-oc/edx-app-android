@@ -56,11 +56,16 @@ public class LoginPrefs {
         clearSocialLoginToken();
     }
 
+    public void storeUserCookies(@NonNull String cookies) {
+        pref.put(PrefManager.Key.USER_COOKIES_STRING, gson.toJson(cookies));
+    }
+
     public void clear() {
         clearSocialLoginToken();
         setSubtitleLanguage(null);
         pref.put(PrefManager.Key.PROFILE_JSON, null);
         pref.put(PrefManager.Key.AUTH_JSON, null);
+        pref.put(PrefManager.Key.USER_COOKIES_STRING, null);
         EdxCookieManager.getSharedInstance(MainApplication.instance()).clearWebWiewCookie();
     }
 
@@ -176,5 +181,14 @@ public class LoginPrefs {
             default:
                 throw new IllegalArgumentException(backend.name());
         }
+    }
+
+    @Nullable
+    public String getUserCookies() {
+        final String json = pref.getString(PrefManager.Key.USER_COOKIES_STRING);
+        if (null == json) {
+            return null;
+        }
+        return gson.fromJson(json, String.class);
     }
 }

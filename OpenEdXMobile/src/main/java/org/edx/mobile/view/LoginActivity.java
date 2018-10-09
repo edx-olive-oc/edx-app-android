@@ -75,6 +75,13 @@ public class LoginActivity
         activityLoginBinding.socialAuth.googleButton.getRoot().setOnClickListener(
                 socialLoginDelegate.createSocialButtonClickHandler(
                         SocialFactory.SOCIAL_SOURCE_TYPE.TYPE_GOOGLE));
+        activityLoginBinding.samlLogin.samlButtonLayout.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //redirect to SAML webview activity
+                startActivity(SamlWebViewActivity.newIntent());
+            }
+        });
 
         activityLoginBinding.loginButtonLayout.setOnClickListener(new OnClickListener() {
             @Override
@@ -114,6 +121,10 @@ public class LoginActivity
             String text = String.format("%s %s %s",
                     getString(R.string.label_version), versionName, envDisplayName);
             activityLoginBinding.versionEnvTv.setText(text);
+        }
+
+        if (!config.getSamlConfig().isEnabled()) {
+            activityLoginBinding.samlLogin.samlButtonLayout.setVisibility(View.GONE);
         }
 
         return new LoginPresenter.LoginViewInterface() {
@@ -325,6 +336,7 @@ public class LoginActivity
 
         activityLoginBinding.socialAuth.facebookButton.getRoot().setClickable(enable);
         activityLoginBinding.socialAuth.googleButton.getRoot().setClickable(enable);
+        activityLoginBinding.samlLogin.samlButtonLayout.setClickable(enable);
 
         activityLoginBinding.emailEt.setEnabled(enable);
         activityLoginBinding.passwordEt.setEnabled(enable);

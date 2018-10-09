@@ -145,6 +145,11 @@
                         <include
                             android:id="@+id/social_auth"
                             layout="@layout/panel_social_auth" />
+
+                        <include
+                            android:id="@+id/saml_login"
+                            layout="@layout/panel_saml_login"/>
+
                     </LinearLayout>
 
                     <TextView

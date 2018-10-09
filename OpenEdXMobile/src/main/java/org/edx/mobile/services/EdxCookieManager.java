@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 import org.edx.mobile.authentication.LoginService;
 import org.edx.mobile.event.SessionIdRefreshEvent;
 import org.edx.mobile.logger.Logger;
+import org.edx.mobile.module.prefs.LoginPrefs;
 import org.edx.mobile.util.Config;
 
 import java.io.File;
@@ -48,6 +49,9 @@ public class EdxCookieManager {
 
     private Call<RequestBody> loginCall;
 
+    @Inject
+    private LoginPrefs loginPrefs;
+
     public static synchronized EdxCookieManager getSharedInstance(@NonNull final Context context) {
         if ( instance == null ) {
             instance = new EdxCookieManager();
@@ -66,7 +70,16 @@ public class EdxCookieManager {
     }
 
     public synchronized  void tryToRefreshSessionCookie( ){
-        if (loginCall == null || loginCall.isCanceled()) {
+        final String userCookies = loginPrefs.getUserCookies();
+        if (userCookies != null){
+            final String[] cookies = userCookies.split(";");
+            final CookieManager cookieManager = CookieManager.getInstance();
+            for (String cookie: cookies) {
+                cookieManager.setCookie(config.getApiHostURL(), cookie);
+            }
+            authSessionCookieExpiration = System.currentTimeMillis() + FRESHNESS_INTERVAL;
+            EventBus.getDefault().post(new SessionIdRefreshEvent(true));
+        } else if (loginCall == null || loginCall.isCanceled()) {
             loginCall = loginService.login();
             loginCall.enqueue(new Callback<RequestBody>() {
                 @Override
