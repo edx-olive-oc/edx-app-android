@@ -45,7 +45,7 @@ public class ApiConstants {
 
     public static final String TOKEN_TYPE_REFRESH = "refresh_token";
 
-    public static final String URL_LOGIN_SAML = "/auth/login/tpa-saml/?auth_entry=login&idp={idpSlug}";
+    public static final String SAML_PROVIDER_LOGIN_URL = "/auth/login/tpa-saml/?auth_entry=login&idp={idpSlug}";
 
     @StringDef({TOKEN_TYPE_ACCESS, TOKEN_TYPE_REFRESH})
     @Retention(RetentionPolicy.SOURCE)

@@ -18,7 +18,7 @@ import org.edx.mobile.R;
 import org.edx.mobile.authentication.LoginAPI;
 import org.edx.mobile.base.BaseFragmentActivity;
 import org.edx.mobile.databinding.ActivitySamlWebViewBinding;
-import static org.edx.mobile.http.constants.ApiConstants.URL_LOGIN_SAML;
+import static org.edx.mobile.http.constants.ApiConstants.SAML_PROVIDER_LOGIN_URL;
 
 import org.edx.mobile.http.HttpStatus;
 import org.edx.mobile.http.HttpStatusException;
@@ -49,13 +49,12 @@ public class SamlWebViewActivity extends BaseFragmentActivity {
         activitySamlWebViewBinding = DataBindingUtil.setContentView(this, R.layout.activity_saml_web_view);
         setToolbarAsActionBar();
         String idpSlug = config.getSamlConfig().getSamlIdpSlug();
-        setTitle(idpSlug);
         WebView myWebView = activitySamlWebViewBinding.samlWebView;
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         myWebView.setWebViewClient(new MyWebViewClient());
-        String url = URL_LOGIN_SAML.replace("{idpSlug}", idpSlug);
-        myWebView.loadUrl(config.getApiHostURL()+url);
+        String url = config.getApiHostURL() + SAML_PROVIDER_LOGIN_URL.replace("{idpSlug}", idpSlug);
+        myWebView.loadUrl(url);
     }
 
     @NonNull
@@ -65,15 +64,12 @@ public class SamlWebViewActivity extends BaseFragmentActivity {
 
     private class MyWebViewClient extends WebViewClient {
 
-        private static final String KEY_WORD_REGISTER = "register";
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
             boolean isPlatform = url.contains(config.getApiHostURL());
 
-            if (url.contains(KEY_WORD_REGISTER) && isPlatform) {
-                view.setVisibility(View.VISIBLE);
-            } else if (isPlatform) {
+            if (isPlatform) {
                 view.setVisibility(View.GONE);
                 activitySamlWebViewBinding.webViewProgress.loadingIndicator.setVisibility(View.VISIBLE);
             } else {
@@ -87,9 +83,10 @@ public class SamlWebViewActivity extends BaseFragmentActivity {
         public void onPageFinished(WebView view, String url) {
 
             String cookies = CookieManager.getInstance().getCookie(url);
-            if (url.contains(config.getApiHostURL()) && cookies!= null  && !url.contains(KEY_WORD_REGISTER)) {
+            SamlWebViewActivity.this.setTitle(view.getTitle());
+            if (url.contains(config.getApiHostURL()) && cookies!= null) {
                 loginPrefs.storeUserCookies(cookies);
-                ProfileTask profileTask = new ProfileTask(getApplicationContext());
+                ProfileTask profileTask = new ProfileTask(getApplicationContext(), view);
                 profileTask.execute();
             }
         }
@@ -100,8 +97,11 @@ public class SamlWebViewActivity extends BaseFragmentActivity {
         @Inject
         private LoginAPI loginAPI;
 
-        public ProfileTask(@NonNull Context context) {
+        private WebView view;
+
+        public ProfileTask(@NonNull Context context, WebView view) {
             super(context);
+            this.view = view;
         }
 
         @Override
@@ -114,7 +114,8 @@ public class SamlWebViewActivity extends BaseFragmentActivity {
             if (ex instanceof HttpStatusException &&
                     ((HttpStatusException) ex).getStatusCode() == HttpStatus.UNAUTHORIZED) {
                 loginPrefs.clear();
-                showAlertDialog("Error", ex.getMessage());
+                view.setVisibility(View.VISIBLE);
+                activitySamlWebViewBinding.webViewProgress.loadingIndicator.setVisibility(View.GONE);
             }
         }
 
