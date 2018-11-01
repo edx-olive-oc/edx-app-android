@@ -333,6 +333,13 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/edx_brand_primary_accent" />
 
+        <activity
+            android:name="org.edx.mobile.view.SamlWebViewActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar.TranslucentStatusBar"
+            android:windowSoftInputMode="adjustNothing" />
+
     </application>
 
 </manifest>

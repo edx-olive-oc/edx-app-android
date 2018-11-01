@@ -59,6 +59,7 @@ public class Config {
     private static final String FIREBASE = "FIREBASE";
     private static final String PUSH_NOTIFICATIONS_FLAG = "PUSH_NOTIFICATIONS";
     private static final String WHITE_LIST_OF_DOMAINS = "WHITE_LIST_OF_DOMAINS";
+    private static final String SAML = "SAML";
 
     // Features
     private static final String USER_PROFILES_ENABLED = "USER_PROFILES_ENABLED";
@@ -455,6 +456,30 @@ public class Config {
         }
     }
 
+    public static class SAMLConfig {
+        @SerializedName("ENABLED")
+        private boolean mEnabled;
+
+        @SerializedName("SAML_IDP_SLUG")
+        private String mSamlIdpSlug;
+
+        public SAMLConfig(boolean mEnabled, String mSamlIdpSlug) {
+            this.mEnabled = mEnabled;
+            this.mSamlIdpSlug = mSamlIdpSlug;
+        }
+
+        public SAMLConfig() {
+        }
+
+        public boolean isEnabled() {
+            return mEnabled && !TextUtils.isEmpty(mSamlIdpSlug);
+        }
+
+        public String getSamlIdpSlug() {
+            return mSamlIdpSlug;
+        }
+    }
+
     @Inject
     public Config(Context context) {
         try {
@@ -690,6 +715,11 @@ public class Config {
     @NonNull
     public EndToEndConfig getEndToEndConfig() {
         return getObjectOrNewInstance(END_TO_END_TEST, EndToEndConfig.class);
+    }
+
+    @NonNull
+    public SAMLConfig getSamlConfig() {
+        return getObjectOrNewInstance(SAML, SAMLConfig.class);
     }
 
     @NonNull

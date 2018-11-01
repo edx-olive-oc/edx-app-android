@@ -30,8 +30,11 @@ public final class OauthHeaderRequestInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         final Request.Builder builder = chain.request().newBuilder();
         final String token = loginPrefs.getAuthorizationHeader();
+        final String cookies = loginPrefs.getUserCookies();
         if (token != null) {
             builder.addHeader("Authorization", token);
+        } else if (cookies != null) {
+            builder.addHeader("Cookie", cookies);
         }
         return chain.proceed(builder.build());
     }
