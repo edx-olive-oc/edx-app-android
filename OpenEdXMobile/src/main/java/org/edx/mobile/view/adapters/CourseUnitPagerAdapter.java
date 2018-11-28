@@ -18,6 +18,7 @@ import org.edx.mobile.view.CourseUnitFragment;
 import org.edx.mobile.view.CourseUnitMobileNotSupportedFragment;
 import org.edx.mobile.view.CourseUnitOnlyOnYoutubeFragment;
 import org.edx.mobile.view.CourseUnitVideoFragment;
+import org.edx.mobile.view.CourseUnitYoutubeVideoFragment;
 import org.edx.mobile.view.CourseUnitWebViewFragment;
 
 import java.util.List;
@@ -59,10 +60,13 @@ public class CourseUnitPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int pos) {
         CourseComponent unit = getUnit(pos);
         CourseUnitFragment unitFragment;
+        Boolean youtubeVideo = (unit instanceof VideoBlockModel && ((VideoBlockModel) unit).getData().encodedVideos.getYoutubeVideoInfo() != null);
         //FIXME - for the video, let's ignore studentViewMultiDevice for now
         if (isCourseUnitVideo(unit)) {
             unitFragment = CourseUnitVideoFragment.newInstance((VideoBlockModel) unit, (pos < unitList.size()), (pos > 0));
-        } else if (unit instanceof VideoBlockModel && ((VideoBlockModel) unit).getData().encodedVideos.getYoutubeVideoInfo() != null) {
+        } else if (youtubeVideo && config.getEmbeddedYoutubeConfig().isYoutubeEnabled()) {
+            unitFragment = CourseUnitYoutubeVideoFragment.newInstance((VideoBlockModel) unit, (pos < unitList.size()), (pos > 0));
+        } else if (youtubeVideo) {
             unitFragment = CourseUnitOnlyOnYoutubeFragment.newInstance(unit);
         } else if (config.isDiscussionsEnabled() && unit instanceof DiscussionBlockModel) {
             unitFragment = CourseUnitDiscussionFragment.newInstance(unit, courseData);
